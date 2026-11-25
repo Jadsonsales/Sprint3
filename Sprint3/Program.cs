@@ -7,6 +7,10 @@ using Sprint3.Data;
 using Sprint3.Repositories;
 using Sprint3.Services;
 using Sprint3.Services.Interfaces;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +66,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Habilitar CORS para o Frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirFrontend", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -72,6 +86,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Servir arquivos estáticos da pasta wwwroot (Frontend)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseCors("PermitirFrontend");
 
 app.UseAuthentication(); // Deve vir sempre antes do UseAuthorization
 app.UseAuthorization();
